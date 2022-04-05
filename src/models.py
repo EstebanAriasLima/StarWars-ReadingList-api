@@ -58,7 +58,7 @@ class Person(Item):
     def __repr__(self) -> str:
         return f"{self.id}: {self.name}, {self.eye_color}"
 
-    def __init_(self, **kwargs):
+    def __init__(self, **kwargs):
         for (key, value) in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)
@@ -68,6 +68,8 @@ class Person(Item):
             "id": self.id,
             "name": self.name,
             "eye_color": self.eye_color,
+            'uid':self.uid
+
         }
         if long:
             return {**{
@@ -80,7 +82,6 @@ class Person(Item):
                 'homeworld':self.homeworld,
                 'url':self.url,
                 'description':self.description,
-                'uid':self.uid
             },**response} 
         else:
             return response
@@ -101,6 +102,33 @@ class Planet(Item):
     __mapper_args__ = {
         'polymorphic_identity': 'planet',
     }
+
+    @property
+    def uid(self):
+        return self.url.split("/")[-1]
+
+    def serialize(self, long=False):
+        response= {
+            "id": self.id,
+            "name": self.name,
+            'uid':self.uid
+
+        }
+        if long:
+            return {**{
+                'diameter': self.diameter,
+                'rotation_period': self.rotation_period,
+                'orbital_period':self.orbital_period,
+                'gravity':self.gravity,
+                'population':self.population,
+                'climate':self.climate,
+                'terrain':self.terrain,
+                'url':self.url,
+                'surface_water':self.surface_water,
+                'description':self.description,
+            },**response} 
+        else:
+            return response
 
     @classmethod
     def create(cls, data):
@@ -123,12 +151,6 @@ class Planet(Item):
             if hasattr(self, key):
                 setattr(self, key, value)
 
-    def serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "climate": self.climate,
-        }
 
 class Vehicle(Item):
     id = db.Column(db.Integer, primary_key=True)
@@ -151,6 +173,35 @@ class Vehicle(Item):
         'polymorphic_identity': 'vehicle',
     }
 
+    @property
+    def uid(self):
+        return self.url.split("/")[-1]
+
+    def serialize(self, long=False):
+        response= {
+            "id": self.id,
+            "name": self.name,
+            'uid':self.uid
+
+        }
+        if long:
+            return {**{
+                'model': self.model,
+                'vehicle_class': self.vehicle_class,
+                'manufacturer':self.manufacturer,
+                'cost_in_credits':self.cost_in_credits,
+                'length':self.length,
+                'crew':self.crew,
+                'passengers':self.passengers,
+                'max_atmosphering_speed':self.max_atmosphering_speed,
+                'cargo_capacity':self.cargo_capacity,
+                'consumables':self.consumables,
+                'url':self.url,
+                'description':self.description,
+            },**response} 
+        else:
+            return response
+
     @classmethod
     def create(cls, data):
         instance = cls(**data)
@@ -172,23 +223,7 @@ class Vehicle(Item):
             if hasattr(self, key):
                 setattr(self, key, value)
 
-    def serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "max_atmosphering_speed": self.max_atmosphering_speed,
-        }
-
-
-
 
     def __repr__(self):
         return '<User %r>' % self.username
     
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "email": self.email,
-            # do not serialize the password, its a security breach
-        }

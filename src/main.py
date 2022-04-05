@@ -42,6 +42,7 @@ def handle_hello():
     return jsonify(response_body), 200
 
 base_url = "https://www.swapi.tech/api/"
+
 @app.route('/people', methods=[ 'GET', 'POST'])
 def handle_people():
     if request.method == 'GET':
@@ -59,16 +60,15 @@ def handle_people():
         dictionary = person.serialize()
         return jsonify(dictionary), 201
 
-@app.route('/people/<int:id>', methods=['GET'])
-def more_details_person(id):
-    #buscar en base de datos al personaje cuya id corresponde a la suya
+@app.route('/people/<int:id>')
+def handle_one_character(id):
     person = Person.query.get(id)
-    if isinstance(person, Person):
-        #enviar una vista detallada del personaje
-        print(person)
-        dictionary = person.serialize(long=True)
-        return jsonify(dictionary), 200
-    return 404
+    if person is None:
+        return jsonify({
+            "msg": "not found"
+        }), 404
+    return jsonify(person.serialize(long=True)), 200
+
 
 
 @app.route('/populate-people', methods=['POST'])
@@ -96,7 +96,7 @@ def handle_planets():
     if request.method == 'GET':
         planets = Planet.query.all()
         return jsonify(list(map(
-            lambda person: planet.serialize(),
+            lambda planet: planet.serialize(),
             planets)
         )), 200
     else: 
@@ -107,6 +107,16 @@ def handle_planets():
         )
         dictionary = planet.serialize()
         return jsonify(dictionary), 201
+
+@app.route('/planets/<int:id>')
+def handle_one_planet(id):
+    planet = Planet.query.get(id)
+    if planet is None:
+        return jsonify({
+            "msg": "not found"
+        }), 404
+    return jsonify(planet.serialize(long=True)), 200
+
 
 @app.route('/populate-planets', methods=['POST'])
 def populate_planets():
@@ -133,7 +143,7 @@ def handle_vehicles():
     if request.method == 'GET':
         vehicles = Vehicle.query.all()
         return jsonify(list(map(
-            lambda person: vehicle.serialize(),
+            lambda vehicle: vehicle.serialize(),
             vehicles)
         )), 200
     else: 
@@ -144,6 +154,17 @@ def handle_vehicles():
         )
         dictionary = vehicle.serialize()
         return jsonify(dictionary), 201
+
+
+@app.route('/vehicles/<int:id>')
+def handle_one_vehicle(id):
+    vehicle = Vehicle.query.get(id)
+    if vehicle is None:
+        return jsonify({
+            "msg": "not found"
+        }), 404
+    return jsonify(vehicle.serialize(long=True)), 200
+
 
 @app.route('/populate-vehicles', methods=['POST'])
 def populate_vehicles():
@@ -158,12 +179,11 @@ def populate_vehicles():
         all_vehicles.append(body['result']['properties'])
     instances = []
     for vehicle in all_vehicles:
-        instance = Vehicle.create(vehicle)
+        instance = Vehicle.create(planet)
         instances.append(instance)
     return jsonify(list(map(
         lambda inst:inst.serialize(),
-        instances
-    ))), 200
+        instances)))
 
 
 # this only runs if `$ python src/main.py` is executed
